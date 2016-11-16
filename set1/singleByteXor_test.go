@@ -1,12 +1,15 @@
 package main
 
-import "testing"
+import (
+	"encoding/hex"
+	"testing"
+)
 
 func TestSingleByteXor(t *testing.T) {
-	data := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+	input := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+	data, _ := hex.DecodeString(input)
 	result, _ := getBestSol(data)
-	// X (int 88) is the correct letter
-	if result != "X" {
+	if string(result) != "X" {
 		t.Errorf("Expected .X, got $s", result)
 	}
 }

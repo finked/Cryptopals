@@ -1,35 +1,33 @@
 package main
 
-import "fmt"
-import "math"
-import "strconv"
+import (
+	"encoding/hex"
+	"fmt"
+	"math"
+	"sort"
+	"strconv"
+)
 
-// import "encoding/binary"
-
-func getBestSol(input string) (string, float64) {
+func getBestSol(data []byte) (int, float64) {
 	var bestSol int
-	bestScore := float64(len(input))
+	bestScore := 0.0
 	for i := 65; i < 122; i++ {
 		num := fmt.Sprintf("%x", i)
-		// fmt.Println(num)
-		res := XorLetter(input, num)
-		// fmt.Printf("Solution:\nres = %s\n", string(res[:]))
-		// fmt.Printf("byte = %v\n", res)
+		// data, _ := hex.DecodeString(input)
+		data2, _ := hex.DecodeString(num)
+		res := XorLetter(data, data2)
 		score := scoreEngText(res)
-		// fmt.Printf("Score is %v with letter %v\n\n", score, string(i))
 
-		if score < bestScore {
+		if score > bestScore {
 			bestScore = score
 			bestSol = i
 		}
 	}
 
-	// fmt.Printf("Score is %v\n", bestScore)
-	// fmt.Printf("Best solution is with letter %v\n", string(bestSol))
 	// res := XorLetter(input, fmt.Sprintf("%x", bestSol))
 	// fmt.Printf("Solution:\nres = %s\n", string(res[:]))
 
-	return string(bestSol), bestScore
+	return bestSol, bestScore
 }
 
 func scoreEngText(input []byte) float64 {
@@ -37,30 +35,30 @@ func scoreEngText(input []byte) float64 {
 	var ascii [128]int
 	// fmt.Printf("len = %d cap = %d %v\n", len(ascii), cap(ascii), ascii)
 
+	// fmt.Println(input)
+
 	for i := 0; i < len(input); i++ {
+		// fmt.Println(input[i])
 		num := fmt.Sprintf("%d", input[i])
+		// fmt.Println(num)
 		inum, _ := strconv.Atoi(num)
-		// fmt.Printf("num = %v, inum = %v\n", num, inum)
-		for j := 0; j < 128; j++ {
-			// fmt.Println(num)
-			if j == inum {
-				ascii[j]++
-				// fmt.Printf("We got it. New count is %v for %v\n", ascii[j], j)
-			}
-		}
+		// fmt.Println(inum)
+		ascii[inum]++
 	}
 
 	// Calculate error
-	// TODO(DF): 	Remove whitespace number from N. Add upper case letters for start
-	// 				Remove constant term at the end
-	N := len(input)
+	N := len(input) - ascii[32]
+	// N := len(input)
+	// N := float64(sliceIntSum(ascii[65:122], 26))
 	errval := [26]float64{8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094, 6.966,
 		0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929, 0.095, 5.987, 6.327, 9.056,
 		2.758, 0.978, 2.360, 0.150, 1.974, 0.074}
 
 	var err [26]float64
 	for i := 0; i < 26; i++ {
-		err[i] = math.Abs(errval[i]*float64(N)/100 - (float64(ascii[97+i])))
+		err[i] = math.Abs((errval[i] * float64(ascii[97+i])) / float64(N))
+		// err[i] = math.Sqrt(math.Abs(errval[i]*float64(N)/100 -
+		// (float64(ascii[97+i]))))
 		// err[i] = math.Abs(errval[i]*float64(N)/100 - (float64(ascii[65+i] + ascii[97+i])))
 	}
 
@@ -70,8 +68,36 @@ func scoreEngText(input []byte) float64 {
 	return calcerr
 }
 
+func countFrequencys(input []byte) []int {
+	var ascii []int
+	ascii = make([]int, 26, 26)
+	for i := 0; i < len(input); i++ {
+		num := fmt.Sprintf("%d", input[i])
+		inum, _ := strconv.Atoi(num)
+		if inum > 96 && inum < 123 {
+			ascii[inum-96]++
+		}
+	}
+
+	return ascii
+}
+
+func evalLetFreq(letfreq []int) string {
+	sort.Ints(letfreq)
+
+	return "X"
+}
+
 func sliceSum(slice [26]float64) float64 {
 	var sum float64
+	for i := 0; i < len(slice); i++ {
+		sum += slice[i]
+	}
+	return sum
+}
+
+func sliceIntSum(slice []int) int {
+	var sum int
 	for i := 0; i < len(slice); i++ {
 		sum += slice[i]
 	}
