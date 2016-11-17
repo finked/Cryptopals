@@ -10,15 +10,17 @@ import (
 
 func getBestSol(data []byte) (int, float64) {
 	var bestSol int
-	bestScore := 0.0
-	for i := 65; i < 122; i++ {
+	bestScore := 500.0
+	for i := 1; i < 127; i++ {
 		num := fmt.Sprintf("%x", i)
-		// data, _ := hex.DecodeString(input)
 		data2, _ := hex.DecodeString(num)
 		res := XorLetter(data, data2)
 		score := scoreEngText(res)
 
-		if score > bestScore {
+		// fmt.Printf("Score: %f, Line: %s\n", score, res)
+		// fmt.Printf("Score: %f\n", score)
+
+		if score < bestScore {
 			bestScore = score
 			bestSol = i
 		}
@@ -33,6 +35,7 @@ func getBestSol(data []byte) (int, float64) {
 func scoreEngText(input []byte) float64 {
 	// Count same letters
 	var ascii [128]int
+	wrong := 0
 	// fmt.Printf("len = %d cap = %d %v\n", len(ascii), cap(ascii), ascii)
 
 	// fmt.Println(input)
@@ -43,12 +46,20 @@ func scoreEngText(input []byte) float64 {
 		// fmt.Println(num)
 		inum, _ := strconv.Atoi(num)
 		// fmt.Println(inum)
-		ascii[inum]++
+		if inum >= 0 && inum <= 127 {
+			ascii[inum]++
+		}
+		if inum < 91 && inum > 64 {
+			wrong++
+		} else if (inum < 123 && inum > 97) || inum == 32 {
+		} else {
+			wrong += 2
+		}
 	}
 
 	// Calculate error
-	N := len(input) - ascii[32]
-	// N := len(input)
+	// N := len(input) - ascii[32]
+	N := len(input)
 	// N := float64(sliceIntSum(ascii[65:122], 26))
 	errval := [26]float64{8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094, 6.966,
 		0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929, 0.095, 5.987, 6.327, 9.056,
@@ -56,13 +67,15 @@ func scoreEngText(input []byte) float64 {
 
 	var err [26]float64
 	for i := 0; i < 26; i++ {
-		err[i] = math.Abs((errval[i] * float64(ascii[97+i])) / float64(N))
+		// err[i] = math.Abs((errval[i] * float64(ascii[97+i])) / float64(N))
 		// err[i] = math.Sqrt(math.Abs(errval[i]*float64(N)/100 -
 		// (float64(ascii[97+i]))))
+		err[i] = math.Abs(errval[i]*float64(N)/100 - float64(ascii[97+i]))
 		// err[i] = math.Abs(errval[i]*float64(N)/100 - (float64(ascii[65+i] + ascii[97+i])))
 	}
 
-	calcerr := sliceSum(err)
+	calcerr := sliceSum(err) + float64(wrong)
+	// fmt.Printf("No letter: %d\n", calcerr)
 
 	// Return estimated error
 	return calcerr
