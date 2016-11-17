@@ -8,16 +8,6 @@ import (
 	// "reflect"
 )
 
-func main() {
-	readFile("./data/4.txt")
-
-	// Solution:
-	// data, _ := hex.DecodeString("7b5a4215415d544115415d5015455447414c155c46155f4058455c5b523f")
-	// fmt.Printf("%v\n", string(data[:]))
-	// res, score := getBestSol(data)
-	// fmt.Printf("%s, %f\n", string(res), score)
-}
-
 func readFile(filename string) []byte {
 	f, _ := os.Open(filename)
 	r := bufio.NewReader(f)
