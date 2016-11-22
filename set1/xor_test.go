@@ -16,12 +16,23 @@ func TestXor(t *testing.T) {
 
 func TestXorLetter(t *testing.T) {
 	input := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
-	letter := "58"
+	letter := "58" // hex for X
 	data, _ := hex.DecodeString(input)
 	data2, _ := hex.DecodeString(letter)
 	result := XorLetter(data, data2)
 	sol := string(result[:])
 	if sol != "Cooking MC's like a pound of bacon" {
 		t.Errorf("Expected .Cooking MC's like a pound of bacon, got $s", sol)
+	}
+}
+
+func TestXorLetterLong(t *testing.T) {
+	input := "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f"
+	letter := "494345" // hex for ICE
+	data, _ := hex.DecodeString(input)
+	data2, _ := hex.DecodeString(letter)
+	result := XorLetter(data, data2)
+	if string(result) != "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal" {
+		t.Errorf("Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal, got $s", string(result))
 	}
 }
