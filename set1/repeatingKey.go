@@ -28,11 +28,13 @@ func main() {
 	blocks := splitData(keysize, test)
 
 	// Transpose the data
-	tblocks := transposeData(blocks)
+	tblock := transposeData(blocks)
 
 	// Solve each block for one letter
+	key := make([]byte, keysize)
 	for i := 0; i < keysize; i++ {
-		key[i] = getBestSol(tblock[i])
+		bestSol, _ := getBestSol(tblock[i])
+		key[i] = byte(fmt.Sprintf("%x", bestSol))
 	}
 
 	// Use key to decrypt the file
@@ -101,27 +103,29 @@ func splitData(length int, data []byte) [][]byte {
 	/*
 	 *	Split data in blocks with given length
 	 */
-	len := len(data)/length + 1
-	res := make([][]byte, len)
-	for i, _ := range len {
+	dlen := len(data)/length + 1
+	res := make([][]byte, dlen)
+	for i, _ := range dlen {
 		end := (i + 1) * length
 		if end > len(data) {
 			end = len(data)
 		}
 		res[i] = data[i*length : end]
 	}
+	return res
 }
 
 func transposeData(data [][]byte) [][]byte {
 	/*
 	 *	Transpose given data set
 	 */
-	len := len(data[0])
-	res := make([][]byte, len)
-	for i, _ := range len {
-		res[i] := make([]byte, len(data))
-		for j,_ := range len(data) {
+	dlen := len(data[0])
+	res := make([][]byte, dlen)
+	for i, _ := range dlen {
+		// res[i] := make([]byte, len(data))
+		for j, _ := range len(data) {
 			res[i][j] = data[j][i]
 		}
 	}
+	return res
 }
