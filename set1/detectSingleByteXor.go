@@ -17,6 +17,7 @@ func readFile(filename string) []byte {
 	var bestLine []byte
 	ind := 0
 	bestInd := 0
+	// TODO(DF): Add index idx in loop and remove ind
 	for err == nil && !isPrefix {
 		buf, _ := hex.DecodeString(string(line[:]))
 		// fmt.Println(string(buf[:]))
