@@ -114,7 +114,14 @@ func splitData(length int, data []byte) [][]byte {
 
 func transposeData(data [][]byte) [][]byte {
 	/*
-	 *	Transpose given data
+	 *	Transpose given data set
 	 */
-	// res :=
+	len := len(data[0])
+	res := make([][]byte, len)
+	for i, _ := range len {
+		res[i] := make([]byte, len(data))
+		for j,_ := range len(data) {
+			res[i][j] = data[j][i]
+		}
+	}
 }
