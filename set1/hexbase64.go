@@ -5,7 +5,7 @@ import "encoding/base64"
 
 func HexBase64(data string) string {
 
-	// Transform hex code into bytes
+	// Transform hex code into byte array
 	bytedata, _ := hex.DecodeString(data)
 
 	sEnc := base64.StdEncoding.EncodeToString(bytedata)

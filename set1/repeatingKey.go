@@ -2,15 +2,40 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
 func main() {
+	// Read file
 	filename := "./data/6.txt"
-	keysize := getKeysize(filename)
+	f, _ := os.Open(filename)
+	r := bufio.NewReader(f)
+	data, _, _ := r.ReadLine()
+
+	// Encode it with base64
+	decData, _ := base64.StdEncoding.DecodeString(string(data))
+
+	// Get most likely keysize
+	keysize := getKeysize(decData)
 	fmt.Println(keysize)
+
+	// Read in complete file
+	test, _ := ioutil.ReadFile(filename)
+	blocks := splitData(keysize, test)
+
+	// Transpose the data
+	tblocks := transposeData(blocks)
+
+	// Solve each block for one letter
+	for i := 0; i < keysize; i++ {
+		key[i] = getBestSol(tblock[i])
+	}
+
+	// Use key to decrypt the file
 }
 
 func repeatingKey(input []byte) string {
@@ -43,20 +68,24 @@ func hammingDist(input1, input2 []byte) int {
 	return count
 }
 
-func getTwoParts(length int, filename string) ([]byte, []byte) {
-	f, _ := os.Open(filename)
-	r := bufio.NewReader(f)
-
-	data, _, _ := r.ReadLine()
+func getTwoParts(length int, data []byte) ([]byte, []byte) {
 	// fmt.Println(len(data))
-	return data[0:length], data[length : 2*length]
+	if 2*length <= len(data) {
+		return data[0:length], data[length : 2*length]
+	} else {
+		return nil, nil
+	}
 }
 
-func getKeysize(filename string) int {
-	min := 40.0
+func getKeysize(data []byte) int {
+	min := float64(len(data))
 	imin := 0
+
 	for i := 2; i < 41; i++ {
-		data1, data2 := getTwoParts(i, filename)
+		if len(data) < i*2 {
+			return imin
+		}
+		data1, data2 := getTwoParts(i, data)
 		val1 := hammingDist(data1, data2)
 		val := float64(val1) / float64(i)
 		// fmt.Printf("ham = %d, val = %f, ind = %d\n", val1, val, i)
@@ -66,4 +95,26 @@ func getKeysize(filename string) int {
 		}
 	}
 	return imin
+}
+
+func splitData(length int, data []byte) [][]byte {
+	/*
+	 *	Split data in blocks with given length
+	 */
+	len := len(data)/length + 1
+	res := make([][]byte, len)
+	for i, _ := range len {
+		end := (i + 1) * length
+		if end > len(data) {
+			end = len(data)
+		}
+		res[i] = data[i*length : end]
+	}
+}
+
+func transposeData(data [][]byte) [][]byte {
+	/*
+	 *	Transpose given data
+	 */
+	// res :=
 }

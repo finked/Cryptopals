@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
+	"encoding/hex"
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -32,13 +35,22 @@ func TestHammingDist(t *testing.T) {
 
 func TestGetTwoPart(t *testing.T) {
 	filename := "./data/6.txt"
-	res1, res2 := getTwoParts(2, filename)
+	f, _ := os.Open(filename)
+	r := bufio.NewReader(f)
+
+	data, _, _ := r.ReadLine()
+	res1, res2 := getTwoParts(2, data)
 	if string(res1) != "HU" && string(res2) != "If" {
 		t.Errorf("Expected: HU and If got %s, %s", string(res1), string(res2))
 	}
 }
 
 func TestGetKeysize(t *testing.T) {
-	// input := "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272"
-	// TODO(DF): Change functions to handle input byte arrays and split file reading to other function
+	input := "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272"
+	data, _ := hex.DecodeString(input)
+	keysize := getKeysize(data)
+
+	if keysize != 3 {
+		t.Errorf("Expected: 3 got %d", keysize)
+	}
 }
