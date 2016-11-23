@@ -40,16 +40,16 @@ func TestGetTwoPart(t *testing.T) {
 	r := bufio.NewReader(f)
 
 	data, _, _ := r.ReadLine()
-	res1, res2 := getTwoParts(2, data)
-	if string(res1) != "HU" && string(res2) != "If" {
-		t.Errorf("Expected: HU and If got %s, %s", string(res1), string(res2))
+	res := getParts(2, 2, data)
+	if string(res[0]) != "HU" && string(res[1]) != "If" {
+		t.Errorf("Expected: HU and If got %s, %s", string(res[0]), string(res[1]))
 	}
 }
 
 func TestGetKeysize(t *testing.T) {
-	input := "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272"
+	input := "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f"
 	data, _ := hex.DecodeString(input)
-	keysize := getKeysize(data)
+	keysize := getKeysize(3, data)
 
 	if keysize != 3 {
 		t.Errorf("Expected: 3 got %d", keysize)

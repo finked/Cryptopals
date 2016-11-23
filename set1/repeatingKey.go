@@ -8,44 +8,8 @@ import (
 )
 
 func main() {
-	// Read file
-	filename := "./data/6.txt"
-	// f, _ := os.Open(filename)
-	// r := bufio.NewReader(f)
-	// data, _, _ := r.ReadLine()
-
-	data, _ := ioutil.ReadFile(filename)
-	// Decode it with base64
-	decData, _ := base64.StdEncoding.DecodeString(string(data))
-	// decData := []byte(base64.StdEncoding.EncodeToString(data))
-	fmt.Println(decData[0:100])
-
-	// Get most likely keysize
-	keysize := getKeysize(4, decData)
-	// fmt.Println(keysize)
-	keysize = 29
-
-	// Read in complete file
-	// fmt.Println(len(test))
-	blocks := splitData(keysize, decData)
-
-	// Transpose the data
-	tblock := transposeData(blocks)
-
-	// Solve each block for one letter
-	key := make([]byte, keysize)
-	for i := 0; i < keysize; i++ {
-		// fmt.Printf("index %d, text = %s\n", i, string(tblock[i][0:40]))
-		bestSol, _ := getBestSol(tblock[i])
-		// fmt.Printf("bestSol = %d, %s\n", bestSol, string(bestSol))
-		key[i] = byte(bestSol)
-	}
-	// fmt.Printf("i = %d, key = %s\n", i, string(key))
-	fmt.Printf("key = %s\n", string(key))
-
-	// Use key to decrypt the file
-	res := XorLetter(decData, key)
-	fmt.Println(string(res))
+	res := breakRepeatingKey("./data/6.txt")
+	fmt.Println(res)
 }
 
 func repeatingKey(input []byte) string {
@@ -90,21 +54,15 @@ func getParts(length int, number int, data []byte) [][]byte {
 	}
 }
 
-func getTwoParts(length int, data []byte) ([]byte, []byte) {
-	// fmt.Println(len(data))
-	if 2*length <= len(data) {
-		return data[0:length], data[length : 2*length]
-	} else {
-		return nil, nil
-	}
-}
-
+// TODO(DF): Return k best key values instead of the best one
+// TODO(DF): Use each block with each block to compare
 func getKeysize(num int, data []byte) int {
 	min := float64(len(data))
 	imin := 0
 
 	for i := 2; i < 41; i++ {
-		if len(data) < i*2 {
+		if len(data) < i*num*2 {
+			fmt.Println("Abort because of short data")
 			return imin
 		}
 		data := getParts(i, num*2, data)
@@ -113,7 +71,7 @@ func getKeysize(num int, data []byte) int {
 			dist += hammingDist(data[j*2], data[j*2+1])
 		}
 		val := float64(dist) / float64(num*i)
-		fmt.Printf("ham = %d, val = %f, ind = %d\n", dist, val, i)
+		// fmt.Printf("ham = %d, val = %f, ind = %d\n", dist, val, i)
 		if min > val {
 			min = val
 			imin = i
@@ -155,4 +113,39 @@ func transposeData(data [][]byte) [][]byte {
 		}
 	}
 	return res
+}
+
+func breakRepeatingKey(filename string) string {
+	// Read file
+	data, _ := ioutil.ReadFile(filename)
+
+	// Decode it with base64
+	decData, _ := base64.StdEncoding.DecodeString(string(data))
+
+	// Get most likely keysize
+	keysize := getKeysize(8, decData)
+	// fmt.Println(keysize)
+
+	// Read in complete file
+	blocks := splitData(keysize, decData)
+
+	// Transpose the data
+	tblock := transposeData(blocks)
+
+	// Solve each block for one letter
+	key := make([]byte, keysize)
+	for i := 0; i < keysize; i++ {
+		// fmt.Printf("index %d, text = %s\n", i, string(tblock[i][0:40]))
+		bestSol, _ := getBestSol(tblock[i])
+		// fmt.Printf("bestSol = %d, %s\n", bestSol, string(bestSol))
+		key[i] = byte(bestSol)
+	}
+	// fmt.Printf("i = %d, key = %s\n", i, string(key))
+	// fmt.Printf("key = %s\n", string(key))
+
+	// Use key to decrypt the file
+	res := XorLetter(decData, key)
+	fmt.Println(string(res))
+
+	return string(key)
 }
