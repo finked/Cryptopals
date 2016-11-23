@@ -5,12 +5,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"math"
 )
-
-func main() {
-	res := breakRepeatingKey("./data/6.txt")
-	fmt.Println(res)
-}
 
 func repeatingKey(input []byte) string {
 	// Encrypt with ICE
@@ -84,7 +80,7 @@ func splitData(length int, data []byte) [][]byte {
 	/*
 	 *	Split data in blocks with given length
 	 */
-	dlen := len(data) / length
+	dlen := int(math.Ceil(float64(len(data)) / float64(length)))
 	// TODO(DF): Have to handle rest if it doesn't fit
 	res := make([][]byte, dlen)
 	for i, _ := range res {
@@ -109,7 +105,9 @@ func transposeData(data [][]byte) [][]byte {
 		// fmt.Println(len(res[i]))
 		for j := 0; j < len(data); j++ {
 			// fmt.Printf("j = %d, i = %d\n", j, i)
-			res[i][j] = data[j][i]
+			if len(data[j]) > i {
+				res[i][j] = data[j][i]
+			}
 		}
 	}
 	return res

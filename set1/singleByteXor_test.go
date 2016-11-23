@@ -13,3 +13,13 @@ func TestSingleByteXor(t *testing.T) {
 		t.Errorf("Expected .X, got $s", result)
 	}
 }
+
+func TestScoreEngText(t *testing.T) {
+	input := "     "
+	data, _ := hex.DecodeString(input)
+	res := scoreEngText(data)
+
+	if res != 0 {
+		t.Errorf("Expected 0, got %d", res)
+	}
+}

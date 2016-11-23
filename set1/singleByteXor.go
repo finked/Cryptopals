@@ -10,6 +10,7 @@ import (
 
 func getBestSol(data []byte) (int, float64) {
 	var bestSol int
+	// TODO(DF): Calculate correct maximum of bestScore
 	bestScore := 5000.0
 	for i := 1; i < 127; i++ {
 		num := fmt.Sprintf("%x", i)
