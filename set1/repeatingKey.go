@@ -1,31 +1,33 @@
 package main
 
 import (
-	"bufio"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
-	"os"
 )
 
 func main() {
 	// Read file
 	filename := "./data/6.txt"
-	f, _ := os.Open(filename)
-	r := bufio.NewReader(f)
-	data, _, _ := r.ReadLine()
+	// f, _ := os.Open(filename)
+	// r := bufio.NewReader(f)
+	// data, _, _ := r.ReadLine()
 
-	// Encode it with base64
+	data, _ := ioutil.ReadFile(filename)
+	// Decode it with base64
 	decData, _ := base64.StdEncoding.DecodeString(string(data))
+	// decData := []byte(base64.StdEncoding.EncodeToString(data))
+	fmt.Println(decData[0:100])
 
 	// Get most likely keysize
-	keysize := getKeysize(decData)
-	fmt.Println(keysize)
+	keysize := getKeysize(4, decData)
+	// fmt.Println(keysize)
+	keysize = 29
 
 	// Read in complete file
-	test, _ := ioutil.ReadFile(filename)
-	blocks := splitData(keysize, test)
+	// fmt.Println(len(test))
+	blocks := splitData(keysize, decData)
 
 	// Transpose the data
 	tblock := transposeData(blocks)
@@ -33,11 +35,17 @@ func main() {
 	// Solve each block for one letter
 	key := make([]byte, keysize)
 	for i := 0; i < keysize; i++ {
+		// fmt.Printf("index %d, text = %s\n", i, string(tblock[i][0:40]))
 		bestSol, _ := getBestSol(tblock[i])
-		key[i] = byte(fmt.Sprintf("%x", bestSol))
+		// fmt.Printf("bestSol = %d, %s\n", bestSol, string(bestSol))
+		key[i] = byte(bestSol)
 	}
+	// fmt.Printf("i = %d, key = %s\n", i, string(key))
+	fmt.Printf("key = %s\n", string(key))
 
 	// Use key to decrypt the file
+	res := XorLetter(decData, key)
+	fmt.Println(string(res))
 }
 
 func repeatingKey(input []byte) string {
@@ -70,6 +78,18 @@ func hammingDist(input1, input2 []byte) int {
 	return count
 }
 
+func getParts(length int, number int, data []byte) [][]byte {
+	if 2*length <= len(data) {
+		ret := make([][]byte, number)
+		for i := 0; i < number; i++ {
+			ret[i] = data[length*i : length*(i+1)]
+		}
+		return ret
+	} else {
+		return nil
+	}
+}
+
 func getTwoParts(length int, data []byte) ([]byte, []byte) {
 	// fmt.Println(len(data))
 	if 2*length <= len(data) {
@@ -79,7 +99,7 @@ func getTwoParts(length int, data []byte) ([]byte, []byte) {
 	}
 }
 
-func getKeysize(data []byte) int {
+func getKeysize(num int, data []byte) int {
 	min := float64(len(data))
 	imin := 0
 
@@ -87,10 +107,13 @@ func getKeysize(data []byte) int {
 		if len(data) < i*2 {
 			return imin
 		}
-		data1, data2 := getTwoParts(i, data)
-		val1 := hammingDist(data1, data2)
-		val := float64(val1) / float64(i)
-		// fmt.Printf("ham = %d, val = %f, ind = %d\n", val1, val, i)
+		data := getParts(i, num*2, data)
+		dist := 0
+		for j := 0; j < num; j++ {
+			dist += hammingDist(data[j*2], data[j*2+1])
+		}
+		val := float64(dist) / float64(num*i)
+		fmt.Printf("ham = %d, val = %f, ind = %d\n", dist, val, i)
 		if min > val {
 			min = val
 			imin = i
@@ -103,9 +126,10 @@ func splitData(length int, data []byte) [][]byte {
 	/*
 	 *	Split data in blocks with given length
 	 */
-	dlen := len(data)/length + 1
+	dlen := len(data) / length
+	// TODO(DF): Have to handle rest if it doesn't fit
 	res := make([][]byte, dlen)
-	for i, _ := range dlen {
+	for i, _ := range res {
 		end := (i + 1) * length
 		if end > len(data) {
 			end = len(data)
@@ -121,9 +145,12 @@ func transposeData(data [][]byte) [][]byte {
 	 */
 	dlen := len(data[0])
 	res := make([][]byte, dlen)
-	for i, _ := range dlen {
-		// res[i] := make([]byte, len(data))
-		for j, _ := range len(data) {
+	for i := 0; i < dlen; i++ {
+		// fmt.Println(i)
+		res[i] = make([]byte, len(data))
+		// fmt.Println(len(res[i]))
+		for j := 0; j < len(data); j++ {
+			// fmt.Printf("j = %d, i = %d\n", j, i)
 			res[i][j] = data[j][i]
 		}
 	}

@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/hex"
-	"fmt"
+	// "fmt"
 )
 
 func Xor(input string, input2 string) string {
@@ -32,7 +32,7 @@ func Xor(input string, input2 string) string {
 // }
 
 func XorLetter(data []byte, letter []byte) []byte {
-	fmt.Println(len(data))
+	// fmt.Println(len(data))
 	// fmt.Println(len(letter))
 	res := make([]byte, len(data))
 	letlen := len(letter)

@@ -10,7 +10,7 @@ import (
 
 func getBestSol(data []byte) (int, float64) {
 	var bestSol int
-	bestScore := 500.0
+	bestScore := 5000.0
 	for i := 1; i < 127; i++ {
 		num := fmt.Sprintf("%x", i)
 		data2, _ := hex.DecodeString(num)
@@ -18,7 +18,7 @@ func getBestSol(data []byte) (int, float64) {
 		score := scoreEngText(res)
 
 		// fmt.Printf("Score: %f, Line: %s\n", score, res)
-		// fmt.Printf("Score: %f\n", score)
+		// fmt.Printf("Index = %d, Score: %f\n", i, score)
 
 		if score < bestScore {
 			bestScore = score
@@ -26,7 +26,7 @@ func getBestSol(data []byte) (int, float64) {
 		}
 	}
 
-	// res := XorLetter(input, fmt.Sprintf("%x", bestSol))
+	// res := XorLetter(data, []byte(fmt.Sprintf("%x", bestSol)))
 	// fmt.Printf("Solution:\nres = %s\n", string(res[:]))
 
 	return bestSol, bestScore
