@@ -17,3 +17,11 @@ func TestExpandKey(t *testing.T) {
 		t.Errorf("Expected: YELEOW LUBMSRINA got %s", string(res))
 	}
 }
+
+func fwSboxKey(t *testing.T) {
+
+}
+
+func bwSboxKey(t *testing.T) {
+
+}

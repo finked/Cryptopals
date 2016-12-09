@@ -67,7 +67,34 @@ func getKeysize(num int, data []byte) int {
 			dist += hammingDist(data[j*2], data[j*2+1])
 		}
 		val := float64(dist) / float64(num*i)
-		// fmt.Printf("ham = %d, val = %f, ind = %d\n", dist, val, i)
+		fmt.Printf("ham = %d, val = %f, ind = %d\n", dist, val, i)
+		if min > val {
+			min = val
+			imin = i
+		}
+	}
+	return imin
+}
+
+func getKeysize2(num int, data []byte) int {
+	min := float64(len(data))
+	imin := 0
+
+	for i := 2; i < 41; i++ {
+		if len(data) < i*num*2 {
+			fmt.Println("Abort because of short data")
+			return imin
+		}
+		data := getParts(i, num*2, data)
+		dist := 0
+		for j := 0; j < num; j++ {
+			for k := j; k < num; k++ {
+
+			}
+			dist += hammingDist(data[j*2], data[j*2+1])
+		}
+		val := float64(dist) / float64(num*i)
+		fmt.Printf("ham = %d, val = %f, ind = %d\n", dist, val, i)
 		if min > val {
 			min = val
 			imin = i
